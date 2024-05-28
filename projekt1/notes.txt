@@ -1,0 +1,7 @@
+LSTM64 -> Flatten -> Dense64 -> Dense32 -> Dense1  32ep 256bs Loss: >20  Acc:  >0.99 | 64ep 512bs Loss: >12   Acc: >0.99
+LSTM64 -> Dense64 -> Dense32 -> Dense1             32ep 256bs Loss: >15  Acc:  >0.97 | 64ep 512bs Loss: >10   Acc: >0.98
+LSTM64 -> Dense32 -> Dense1                        32ep 256bs Loss: >5   Acc:  >0.99 | 64ep 512bs Loss: >1    Acc: >0.99
+LSTM32 -> Dense32 -> Flatten -> Dense4 -> Dense1   32ep 256bs Loss: >5   Acc:  >0.99 | 64ep 512bs Loss: >1    Acc: >0.99
+
+
+na testowe 17 wartosci (5 pewnych 1) żadna z sieci nie działa prawidłowo, nie przewiduje sensownie, dataset najwyrazniej nie jest skorelowany
