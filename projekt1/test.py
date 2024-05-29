@@ -5,11 +5,15 @@ from keras.layers import LSTM, Dense
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+import seaborn as sns
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
 from sklearn.impute import SimpleImputer
+
+import os
 
 valuable_columns  = [
     #"date",
@@ -91,6 +95,9 @@ pred_Y1 = pd.Series(Y_1.flatten())
 Y_0 = loaded_model.predict(X_0)
 pred_Y0 = pd.Series(Y_0.flatten())
 
+print("Y_1:",Y_1)
+print("Y_0:",Y_0)
+
 global_mean = (pred_Y1.mean() + pred_Y0.mean())/2
 
 summary_1 = {
@@ -125,6 +132,68 @@ print("\n\n")
 print("Expected 0:")
 for key, value in summary_0.items():
     print(f"{key}: {value}")
+
+
+
+dataframes = []
+
+input_folder = 'output'
+for filename in files:
+    if filename.endswith(".csv"):  
+        #filepath = os.path.join(input_folder, filename)
+        filepath = filename
+        print(filepath)
+        df = pd.read_csv(filepath, usecols=valuable_columns)
+        dataframes.append(df)
+        
+df = pd.concat(dataframes, ignore_index=True)
+
+
+
+failure_condition = df['failure'] == 0
+duplicates = df.duplicated(subset="model", keep=False)
+
+duplicates_with_failure_zero = duplicates & failure_condition
+
+# Step 5: Randomly drop 50% of the filtered duplicates
+def drop_half_duplicates(df, duplicate_mask, drop_fraction = 0.5):
+    duplicates_df = df[duplicate_mask].copy()
+    # Create a random mask to drop 50% of the duplicates
+    random_mask = np.random.rand(len(duplicates_df)) < drop_fraction
+    drop_indices = duplicates_df[random_mask].index
+    return df.drop(index=drop_indices)
+
+df = drop_half_duplicates(df, duplicates_with_failure_zero, 0.99992)
+
+X = df.drop(columns=['failure', 'model'])
+Y = df['failure']
+
+
+#df.drop(columns=['failure', 'model'])
+
+predictions = model.predict(X)
+predictions = np.array([[1] if x[0] > global_mean else [0] for x in predictions])
+predicted_labels = np.argmax(predictions, axis=1)
+
+
+
+true_labels = np.argmax(Y, axis=0)
+
+# Confusion matrix
+cm = confusion_matrix(y_true=Y, y_pred=predictions,normalize='true')
+plt.figure(figsize=(10, 7))
+sns.heatmap(
+    cm,
+    annot=True,
+    #mt="d",
+    cmap="Blues",
+    #xticklabels=label_names,
+    #yticklabels=label_names,
+)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix")
+plt.show()
 
 # Evaluate on test set
 

@@ -64,7 +64,7 @@ model.add(Dense(1, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-days = 140
+days = 180
 
 dataframes = []
 
@@ -138,7 +138,7 @@ print(class_weights[0]+class_weights[1])
 history = model.fit(tf.convert_to_tensor(X_train, dtype=tf.float32),
           y_train,
           shuffle=True,
-          epochs=32,
+          epochs=64,
           batch_size=1,
           validation_data=(X_test, y_test),
           class_weight=class_weights)
@@ -175,22 +175,3 @@ plt.show()
 #    label for label, index in sorted(label_mapping.items(), key=lambda x: x[1])
 #]
 # Predict on test images
-predictions = model.predict(X_test)
-predicted_labels = np.argmax(predictions, axis=1)
-true_labels = np.argmax(y_test, axis=0)
-
-# Confusion matrix
-cm = confusion_matrix(true_labels, predicted_labels)
-plt.figure(figsize=(10, 7))
-sns.heatmap(
-    cm,
-    annot=True,
-    fmt="d",
-    cmap="Blues",
-    #xticklabels=label_names,
-    #yticklabels=label_names,
-)
-plt.xlabel("Predicted")
-plt.ylabel("True")
-plt.title("Confusion Matrix")
-plt.show()

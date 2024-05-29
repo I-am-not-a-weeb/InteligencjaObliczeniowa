@@ -1,0 +1,10 @@
+AccLoss1 / ConMatrix1 = 140days - 32epochs
+    -    / ConMatrix2 = 160days - 32epochs
+AccLoss3 / ConMatrix3 = 210days - 32epochs
+AccLoss4 / ConMatrix4 = 230days - 32epochs
+AccLoss5 / ConMatrix5 = 180days - 64epochs
+
+Ze wzgledu na duze rozmiary plikow nie sa one zawarte na githubie > https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data
+Widać że w wiekszosci modele maja problem z przewidywaniem 1 i przewidują najczesciej 0 (false negative), problemem najwyraźniej jest 
+dataset- niska korelacja; Najlepiej wyszedł druga próba z wynikami powyżej zadowalających (>80% celnosci wzgledem danych niezwiazanych z trenowaniem)
+
