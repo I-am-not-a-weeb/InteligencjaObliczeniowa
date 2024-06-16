@@ -81,10 +81,13 @@ for filename in os.listdir(input_folder):
     days-=1
         
 df = pd.concat(dataframes, ignore_index=True)
-        
+
+
+
+# TEEEEEEEEEEEEEEEEEEEEEEEEEEST
 duplicates = df.duplicated(subset="model", keep=False)
         
-# TEEEEEEEEEEEEEEEEEEEEEEEEEEST
+
 
 failure_condition = df['failure'] == 0
 duplicates_with_failure_zero = duplicates & failure_condition
