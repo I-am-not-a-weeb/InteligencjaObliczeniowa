@@ -5,9 +5,11 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
+from sklearn.impute import SimpleImputer
+
 valuable_columns  = [
     #"date",
-    #"serial_number",
+    "serial_number",
     #"model",
     #"capacity_bytes",
     "failure",
@@ -23,36 +25,16 @@ valuable_columns  = [
     #"smart_194_normalized",#"smart_194_raw",      # Temperature
 ]
 
-input_folder = 'LSTM_temp'
-output_folder = 'LSTM_temp'
+input_folder = 'data'
+output_folder = 'data'
 
 for filename in os.listdir(input_folder):
     if filename.endswith(".csv"):  # Check for image files
         filepath = os.path.join(input_folder, filename)
         
         print(filename)
-        df = pd.read_csv(filepath, usecols=valuable_columns)
+        df = pd.read_csv(filepath,usecols=valuable_columns)
         
         df.dropna(inplace=True)
         
-        duplicates = df.duplicated(keep=False)
-    
-        failure_condition = df['failure'] == 0
-        duplicates_with_failure_zero = duplicates & failure_condition
-
-        print(duplicates_with_failure_zero)
-
-        def drop_half_duplicates(df, duplicate_mask, drop_fraction = 0.5):
-            duplicates_df = df[duplicate_mask].copy()
-            # Create a random mask to drop 50% of the duplicates
-            random_mask = np.random.rand(len(duplicates_df)) < drop_fraction
-            drop_indices = duplicates_df[random_mask].index
-            return df.drop(index=drop_indices)
-
-        df = drop_half_duplicates(df, duplicates_with_failure_zero, 0.3)
         df.to_csv(os.path.join(output_folder, filename), index=False)
-        
-    
-    
-        
-        

@@ -10,16 +10,16 @@ from sklearn.impute import SimpleImputer
 valuable_columns  = [
     #"date",
     "serial_number",
-    "model",
+    #"model",
     #"capacity_bytes",
     "failure",
     "smart_1_normalized",#"smart_1_raw",          # Read Error Rate
     "smart_5_normalized",#"smart_5_raw",          # Reallocated Sectors Count/Retired Block Count
     #"smart_8_normalized",#"smart_8_raw",          # Seek Time Performance
     "smart_9_normalized",#"smart_9_raw",          # Power-On Hours
-    "smart_12_normalized",#"smart_12_raw",        # Power Cycle Count
-    "smart_173_normalized",#"smart_173_raw",      # Wear Leveling Count
-    "smart_174_normalized",#"smart_174_raw",      # Unexpected power loss count
+    #"smart_12_normalized",#"smart_12_raw",        # Power Cycle Count
+    #"smart_173_normalized",#"smart_173_raw",      # Wear Leveling Count
+    #"smart_174_normalized",#"smart_174_raw",      # Unexpected power loss count
     #"smart_184_normalized",#"smart_184_raw",      # End-to-End error / IOEDC
     #"smart_187_normalized",#"smart_187_raw",      # Reported Uncorrectable Errors
     #"smart_194_normalized",#"smart_194_raw",      # Temperature
@@ -31,16 +31,16 @@ data_columns = [
     "smart_5_normalized",#"smart_5_raw",          # Reallocated Sectors Count/Retired Block Count
     #"smart_8_normalized",#"smart_8_raw",          # Seek Time Performance
     "smart_9_normalized",#"smart_9_raw",          # Power-On Hours
-    "smart_12_normalized",#"smart_12_raw",        # Power Cycle Count
-    "smart_173_normalized",#"smart_173_raw",      # Wear Leveling Count
-    "smart_174_normalized",#"smart_174_raw",      # Unexpected power loss count
+    #"smart_12_normalized",#"smart_12_raw",        # Power Cycle Count
+    #"smart_173_normalized",#"smart_173_raw",      # Wear Leveling Count
+    #"smart_174_normalized",#"smart_174_raw",      # Unexpected power loss count
     #"smart_184_normalized",#"smart_184_raw",      # End-to-End error / IOEDC
     #"smart_187_normalized",#"smart_187_raw",      # Reported Uncorrectable Errors
     #"smart_194_normalized",#"smart_194_raw",      # Temperature
 ]
 
-input_folder = 'output'
-output_folder = 'LSTM_ready'
+input_folder = 'data'
+output_folder = 'LSTM_temp'
 
 
 failed_harddrives = []
@@ -48,9 +48,7 @@ failed_harddrives = []
 dataframe = []
 prevframe = pd.DataFrame()
 
-days = 60
-
-
+days = 370
 
 print("Preprocessing data for LSTM model...")
 print("Reading data from: " + input_folder)
@@ -66,7 +64,7 @@ for filename in os.listdir(input_folder):
         
         df.dropna(inplace=True)
         
-        if(fordays < 1):
+        if(fordays < 60):
             failed_harddrives.append(df[df['failure'] == 1]['serial_number'].tolist())
             print("Found failed hardrives")
     
@@ -78,7 +76,6 @@ for filename in os.listdir(input_folder):
         fordays = fordays - 1
         
 failed_harddrives = [item for sublist in failed_harddrives for item in sublist]
-
 
 dataset = {}
 
@@ -114,8 +111,6 @@ for filename in os.listdir(input_folder):
                     dataset[i]['dataframe'] = pd.concat([dataset[i]['dataframe'],dataset[i]['set_dataset']])
             except:
                 print("error")
-      
-        
         prevframe = df
         
         #output_filename = os.path.splitext(filename)[0] + '_preprocessed_LSTM.csv'
@@ -124,6 +119,20 @@ for filename in os.listdir(input_folder):
             break
         fordays = fordays - 1
 
+""" for data in dataset:
+    duplicates = dataset[data]['dataframe'].duplicated(keep=False)
+    
+    failure_condition = df['failure'] == 0
+    duplicates_with_failure_zero = duplicates & failure_condition
+
+    def drop_half_duplicates(df, duplicate_mask, drop_fraction = 0.5):
+        duplicates_df = df[duplicate_mask].copy()
+        # Create a random mask to drop 50% of the duplicates
+        random_mask = np.random.rand(len(duplicates_df)) < drop_fraction
+        drop_indices = duplicates_df[random_mask].index
+        return df.drop(index=drop_indices)
+
+    dataset[data]['dataframe'] = drop_half_duplicates(dataset[data]['dataframe'], duplicates_with_failure_zero, 0.6) """
 
 for data in dataset:
     dataset[data]['dataframe'].to_csv(os.path.join(output_folder, data + '_preprocessed_LSTM.csv'), index=False)
